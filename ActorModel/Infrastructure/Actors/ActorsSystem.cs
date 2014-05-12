@@ -1,15 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ActorModel.Infrastructure.Actors
 {
     public class ActorsSystem : IDisposable
     {
-        private readonly Actor[] _actors;
+        private readonly IList<Actor> _actors;
 
         private ActorsSystem(params Actor[] actors)
         {
             _actors = actors;
+        }
+
+        public ActorsSystem()
+        {
+            _actors = new List<Actor>();
+        }
+
+        public Actor CreateNewActor(Func<ActorsSystem, Actor> factory)
+        {
+            var newActor = factory(this);   
+            _actors.Add(newActor);
+            return newActor;
+        }
+
+        public void SubscribeByAddress(Actor actor)
+        {
+            _actors.Add(actor);
         }
 
         public static ActorsSystem WithoutQueues(params Actor[] actors)
@@ -19,13 +37,7 @@ namespace ActorModel.Infrastructure.Actors
 
         public static ActorsSystem WithQueues(params Actor[] actors)
         {
-            var queuedActors = actors.Select(actor =>
-            {
-                var queuedActor = new QueuedActor(actor);
-                queuedActor.Start();
-                return (Actor) queuedActor;
-            });
-
+            var queuedActors = actors.Select(QueuedActor.Of);
             return new ActorsSystem(queuedActors.ToArray());
         }
 

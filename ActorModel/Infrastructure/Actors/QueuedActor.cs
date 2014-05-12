@@ -16,6 +16,13 @@ namespace ActorModel.Infrastructure.Actors
             _actor = actor;
         }
 
+        public static Actor Of(Actor actor)
+        {
+            var queuedActor = new QueuedActor(actor);
+            queuedActor.Start();
+            return queuedActor;
+        }
+
         public void Start()
         {
             _started = true;
@@ -24,9 +31,10 @@ namespace ActorModel.Infrastructure.Actors
         }
 
         public void Stop()
-        {
+        {            
             _started = false;
-            _actorThread.Join(millisecondsTimeout: 1000);
+            _actor.Dispose();
+            _actorThread.Join(millisecondsTimeout: 1000);            
         }
 
         public override void Dispose()

@@ -19,5 +19,10 @@ namespace ActorModel.Infrastructure.Actors
         }
 
         public Guid Value { get; private set; }
+
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
     }
 }

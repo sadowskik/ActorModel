@@ -53,6 +53,53 @@ namespace ActorModel.Tests
                 Check.That(testActor.HandledMessages).Contains(messageToSend);
             }
         }
+
+        [Test]
+        public void should_distribute_messages_in_a_round_robin_fashion()
+        {            
+            //arrange
+            var actor1 = new MyTestActor(ActorId.GenerateNew());
+            var actor2 = new MyTestActor(ActorId.GenerateNew());
+
+            var factory = From(actor1, actor2);
+            var roundRobinActor = new RoundRobinActor(ActorId.GenerateNew(), factory, 2);
+
+            //act
+            roundRobinActor.Handle(new MyTestMessage1());
+            roundRobinActor.Handle(new MyTestMessage1());
+            roundRobinActor.Handle(new MyTestMessage1());
+
+            //assert
+            Check.That(actor1.HandledMessages).HasSize(2);
+            Check.That(actor2.HandledMessages).HasSize(1);
+        }
+
+        [Test]
+        public void should_distribute_messages_in_a_round_robin_fashion_with_queues()
+        {
+            //arrange
+            var actor1 = new MyTestActor(ActorId.GenerateNew());
+            var actor2 = new MyTestActor(ActorId.GenerateNew());
+
+            var factory = From(QueuedActor.Of(actor1), QueuedActor.Of(actor2));
+            var roundRobinActor = QueuedActor.Of(new RoundRobinActor(ActorId.GenerateNew(), factory, 2));
+
+            //act
+            roundRobinActor.Handle(new MyTestMessage1());
+            roundRobinActor.Handle(new MyTestMessage1());
+            roundRobinActor.Handle(new MyTestMessage1());
+
+            //assert
+            Thread.Sleep(500);
+            Check.That(actor1.HandledMessages).HasSize(2);
+            Check.That(actor2.HandledMessages).HasSize(1);
+        }
+
+        private static Func<T> From<T>(params T[] workers)
+        {
+            int invoked = 0;
+            return () => workers[invoked++];
+        }
     }
 
     public class MyTestActor : Actor
