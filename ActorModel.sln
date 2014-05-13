@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActorModel", "ActorModel\ActorModel.csproj", "{05A407B2-51F3-4860-AFFE-36E15F3D75DC}"
 EndProject
@@ -17,6 +17,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "TcpClientSample\Client\Client.csproj", "{4B2C793D-59A1-489E-AEC7-8B427A797D93}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "TcpClientSample\Server\Server.csproj", "{9F652E07-52EC-4DD8-8F11-395BC761C02E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client2", "TcpClientSample\Client2\Client2.csproj", "{4E5FEF74-F2F3-4BB0-9BB7-3481D97AC783}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,6 +38,10 @@ Global
 		{9F652E07-52EC-4DD8-8F11-395BC761C02E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9F652E07-52EC-4DD8-8F11-395BC761C02E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9F652E07-52EC-4DD8-8F11-395BC761C02E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E5FEF74-F2F3-4BB0-9BB7-3481D97AC783}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E5FEF74-F2F3-4BB0-9BB7-3481D97AC783}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E5FEF74-F2F3-4BB0-9BB7-3481D97AC783}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E5FEF74-F2F3-4BB0-9BB7-3481D97AC783}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -43,5 +49,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{4B2C793D-59A1-489E-AEC7-8B427A797D93} = {A8265AA0-DCDD-471A-A98E-40B5B79AEF03}
 		{9F652E07-52EC-4DD8-8F11-395BC761C02E} = {A8265AA0-DCDD-471A-A98E-40B5B79AEF03}
+		{4E5FEF74-F2F3-4BB0-9BB7-3481D97AC783} = {A8265AA0-DCDD-471A-A98E-40B5B79AEF03}
 	EndGlobalSection
 EndGlobal

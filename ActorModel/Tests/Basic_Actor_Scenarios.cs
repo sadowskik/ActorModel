@@ -75,6 +75,7 @@ namespace ActorModel.Tests
         }
 
         [Test]
+        [LongRunning]
         public void should_distribute_messages_in_a_round_robin_fashion_with_queues()
         {
             //arrange

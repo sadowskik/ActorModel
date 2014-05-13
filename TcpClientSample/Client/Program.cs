@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Client
 {
@@ -9,26 +10,32 @@ namespace Client
     {
         private static void Main()
         {
-            string message = "test";
+            //string message = "test";
 
-            while (!string.IsNullOrEmpty(message) && message != "exit")
-            {
-                message = Console.ReadLine();
+            //while (!string.IsNullOrEmpty(message) && message != "exit")
+            //{
+            //    message = Console.ReadLine();
+            //    SendMessage(message);
+            //}
 
-                var client = new TcpClient();
-                var serverEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3000);
+            Parallel.For(0, 100, i => SendMessage("test" + i));
+        }
 
-                client.Connect(serverEndPoint);
+        private static void SendMessage(string message)
+        {            
+            var client = new TcpClient();
+            var serverEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3000);
 
-                var clientStream = client.GetStream();
+            client.Connect(serverEndPoint);
 
-                var encoder = new ASCIIEncoding();
-                byte[] buffer = encoder.GetBytes(message);
+            var clientStream = client.GetStream();
 
-                clientStream.Write(buffer, 0, buffer.Length);
-                clientStream.Flush();
-                client.Close();
-            }
+            var encoder = new ASCIIEncoding();
+            byte[] buffer = encoder.GetBytes(message);
+
+            clientStream.Write(buffer, 0, buffer.Length);
+            clientStream.Flush();
+            client.Close();            
         }
     }    
 }
