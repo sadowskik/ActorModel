@@ -16,7 +16,7 @@ namespace Stress
             _client = new TcpClient();
             _client.Connect(serverEndPoint);
         }
-
+       
         public void On(SendContent message)
         {
             bool failed = false;
@@ -35,7 +35,7 @@ namespace Stress
             }
             finally
             {
-                System.Send(new SendContent(message, Addresses.DiskWriter, failed));
+                System.Send(new SendContent(message, Addresses.DiskWriter, failed));                
             }
         }
 

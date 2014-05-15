@@ -50,7 +50,7 @@ namespace ActorModel.Infrastructure.Actors
                 if (_mailBox.TryDequeue(out message))
                     _actor.Handle(message);
 
-                Thread.Sleep(50);
+                Thread.Sleep(1);                
             }
         }
 

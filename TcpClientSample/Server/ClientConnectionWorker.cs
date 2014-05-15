@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 using ActorModel.Infrastructure.Actors;
 using Server.Messages;
 
@@ -45,20 +46,23 @@ namespace Server
             }
 
             if (!string.IsNullOrEmpty(message))
+            {
+                Thread.Sleep(250); //simulate some work
                 Console.WriteLine("Worker {0}: {1}", Id, message);
-            
+            }
+
             return true;
         }
 
         private static bool TryReadMessage(NetworkStream clientStream, out string message)
         {
             message = null;
-            var buffer = new byte[4096];
+            var buffer = new byte[64];
             int bytesRead;
             try
             {
                 clientStream.ReadTimeout = 1000;
-                bytesRead = clientStream.Read(buffer, 0, 4096);
+                bytesRead = clientStream.Read(buffer, 0, 64);
             }
             catch (IOException)
             {
