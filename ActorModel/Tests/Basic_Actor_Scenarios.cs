@@ -22,7 +22,7 @@ namespace ActorModel.Tests
                 .ContainsExactly(typeof (MyTestMessage1), typeof (MyTestMessage2));
         }
 
-        [Test]        
+        [Test]
         public void should_send_message_to_the_actor_via_system_in_memory()
         {
             var testActorId = ActorId.GenerateNew();
@@ -32,13 +32,13 @@ namespace ActorModel.Tests
             {
                 var messageToSend = new MyTestMessage1(destinationId: testActorId);
                 system.Send(messageToSend);
-                
+
                 Check.That(testActor.HandledMessages).Contains(messageToSend);
             }
         }
 
         [Test]
-        [LongRunning]                
+        [LongRunning]
         public void should_send_message_to_the_actor_via_system_with_queues()
         {
             var testActorId = ActorId.GenerateNew();

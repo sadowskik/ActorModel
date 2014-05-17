@@ -8,6 +8,8 @@ namespace Stress
     {
         private static void Main(string[] args)
         {
+            Console.ReadLine();
+
             using (var system = new ActorsSystem())
             {
                 var generator = new Generator(ActorId.GenerateNew(), system);
@@ -15,7 +17,7 @@ namespace Stress
                 var connectionWorkers = QueuedActor.Of(new RoundRobinActor(
                     id: Addresses.TcpWritersDispatcher,
                     workerFactory: () => QueuedActor.Of(new TcpWriter(ActorId.GenerateNew(), system)),
-                    degreeOfParallelism: 2));
+                    degreeOfParallelism: 5));
 
                 system.SubscribeByAddress(connectionWorkers);
 
@@ -29,9 +31,10 @@ namespace Stress
                 generator.Start();
 
                 Console.WriteLine("Stresser running");
-                Console.WriteLine("Press any key to stop...");
-                Console.ReadLine();
+                //Console.WriteLine("Press any key to stop...");
+                //Console.ReadLine();
 
+                diskWriter.AllJobDone.Wait();
                 stopwatch.Stop();
                 Console.WriteLine("Speed: {0} msg/sec", ((float)diskWriter.TotalMessagesProcessed)/stopwatch.ElapsedMilliseconds*1000);
             }

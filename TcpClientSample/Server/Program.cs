@@ -18,7 +18,7 @@ namespace Server
                 var connectionWorkers = QueuedActor.Of(new RoundRobinActor(
                     id: Addresses.ConnectionWorkers,
                     workerFactory: () => QueuedActor.Of(new ClientConnectionWorker(system)),
-                    degreeOfParallelism: 8));
+                    degreeOfParallelism: 2));
                 system.SubscribeByAddress(connectionWorkers);
 
                 

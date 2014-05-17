@@ -7,6 +7,7 @@ namespace ActorModel.Infrastructure.Actors
     {
         private readonly Actor _actor;        
         private readonly ConcurrentQueue<Message> _mailBox = new ConcurrentQueue<Message>();
+        private readonly ManualResetEventSlim _continueProcessing = new ManualResetEventSlim(false);
 
         private bool _started;
         private Thread _actorThread;
@@ -26,7 +27,7 @@ namespace ActorModel.Infrastructure.Actors
         public void Start()
         {
             _started = true;
-            _actorThread = new Thread(Loop);
+            _actorThread = new Thread(Loop) {IsBackground = true, Name = _actor.Id.ToString()};            
             _actorThread.Start();
         }
 
@@ -34,6 +35,7 @@ namespace ActorModel.Infrastructure.Actors
         {            
             _started = false;
             _actor.Dispose();
+            _continueProcessing.Set();
             _actorThread.Join(millisecondsTimeout: 1000);            
         }
 
@@ -45,18 +47,20 @@ namespace ActorModel.Infrastructure.Actors
         private void Loop()
         {
             while (_started)
-            {
-                Message message;
-                if (_mailBox.TryDequeue(out message))
-                    _actor.Handle(message);
+            {                
+                _continueProcessing.Wait();
+                _continueProcessing.Reset();
 
-                Thread.Sleep(1);                
+                Message message;
+                while (_mailBox.TryDequeue(out message))
+                    _actor.Handle(message);
             }
         }
 
         public override void Handle(Message message)
         {
             _mailBox.Enqueue(message);
+            _continueProcessing.Set();
         }
     }
 }

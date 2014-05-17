@@ -9,12 +9,14 @@ namespace Stress
     public class TcpWriter : Actor
     {
         private readonly TcpClient _client;
+        private readonly NetworkStream _clientStream;
 
         public TcpWriter(ActorId id, ActorsSystem system) : base(id, system)
         {
             var serverEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3000);
             _client = new TcpClient();
             _client.Connect(serverEndPoint);
+            _clientStream = _client.GetStream();
         }
        
         public void On(SendContent message)
@@ -22,12 +24,12 @@ namespace Stress
             bool failed = false;
 
             try
-            {
-                var clientStream = _client.GetStream();
+            {                
                 var encoder = new ASCIIEncoding();
-                byte[] buffer = encoder.GetBytes(message.Content);
-                clientStream.Write(buffer, 0, buffer.Length);
-                clientStream.Flush();
+                var buffer = encoder.GetBytes(message.Content);                               
+
+                _clientStream.Write(buffer, 0, buffer.Length);
+                _clientStream.Flush();
             }
             catch (Exception)
             {
@@ -42,6 +44,9 @@ namespace Stress
         public override void Dispose()
         {
             _client.Close();
+            
+            _clientStream.Close();
+            _clientStream.Dispose();
         }
     }
 }

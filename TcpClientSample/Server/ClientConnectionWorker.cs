@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -36,10 +35,12 @@ namespace Server
 
         private bool Process(NetworkStream clientStream, TcpClient tcpClient)
         {
+            if (IsDisconected(tcpClient))
+                return false;
+            
             string message;
             if (!TryReadMessage(clientStream, out message))
             {
-
                 clientStream.Close();
                 tcpClient.Close();
                 return false;
@@ -47,7 +48,7 @@ namespace Server
 
             if (!string.IsNullOrEmpty(message))
             {
-                Thread.Sleep(250); //simulate some work
+                Thread.Sleep(10); //simulate some work
                 Console.WriteLine("Worker {0}: {1}", Id, message);
             }
 
@@ -57,29 +58,41 @@ namespace Server
         private static bool TryReadMessage(NetworkStream clientStream, out string message)
         {
             message = null;
-            var buffer = new byte[64];
-            int bytesRead;
+
             try
             {
-                clientStream.ReadTimeout = 1000;
-                bytesRead = clientStream.Read(buffer, 0, 64);
-            }
-            catch (IOException)
-            {
-                //timeout
+                var buffer = new byte[11];
+                int bytesRead;
+                
+                if (clientStream.DataAvailable)
+                    bytesRead = clientStream.Read(buffer, 0, 11);
+                else return true;  
+                
+                if (bytesRead == 0)
+                    return false;
+
+                var encoder = new ASCIIEncoding();
+                message = encoder.GetString(buffer, 0, bytesRead);
                 return true;
             }
             catch
             {
                 return false;
+            }            
+        }
+
+        private static bool IsDisconected(TcpClient tcp)
+        {            
+            if (tcp.Client.Poll(0, SelectMode.SelectRead))
+            {
+                var buff = new byte[1];
+                if (tcp.Client.Receive(buff, SocketFlags.Peek) == 0)
+                {
+                    return true;
+                }
             }
 
-            if (bytesRead == 0)
-                return false;
-
-            var encoder = new ASCIIEncoding();
-            message = encoder.GetString(buffer, 0, bytesRead);
-            return true;
+            return false;
         }
     }
 }
