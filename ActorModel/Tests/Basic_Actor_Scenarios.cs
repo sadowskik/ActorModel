@@ -49,7 +49,7 @@ namespace ActorModel.Tests
                 var messageToSend = new MyTestMessage1(destinationId: testActorId);
                 system.Send(messageToSend);
 
-                Thread.Sleep(100); //that's because of queues usage. use in memory system to avoid dependency from time
+                Thread.Sleep(500); //that's because of queues usage. use in memory system to avoid dependency from time
                 Check.That(testActor.HandledMessages).Contains(messageToSend);
             }
         }

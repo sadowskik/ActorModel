@@ -16,7 +16,10 @@ namespace ActorModel.Infrastructure.Actors
         public ActorsSystem()
         {
             _actors = new List<Actor>();
+            Scheduler = new Scheduler(this);
         }
+
+        public Scheduler Scheduler { get; private set; }
 
         public Actor CreateNewActor(Func<ActorsSystem, Actor> factory)
         {
@@ -51,6 +54,8 @@ namespace ActorModel.Infrastructure.Actors
 
         public void Dispose()
         {
+            Scheduler.Stop();
+
             foreach (var actor in _actors)
                 actor.Dispose();
         }

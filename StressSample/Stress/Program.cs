@@ -13,6 +13,7 @@ namespace Stress
             using (var system = new ActorsSystem())
             {
                 var generator = new Generator(ActorId.GenerateNew(), system);
+                system.SubscribeByAddress(generator);
 
                 var connectionWorkers = QueuedActor.Of(new RoundRobinActor(
                     id: Addresses.TcpWritersDispatcher,
@@ -28,8 +29,8 @@ namespace Stress
 
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
-                generator.Start();
-
+                system.Send(new GenerateNextMessage(generator.Id));
+                
                 Console.WriteLine("Stresser running");
                 //Console.WriteLine("Press any key to stop...");
                 //Console.ReadLine();

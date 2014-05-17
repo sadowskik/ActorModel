@@ -19,7 +19,9 @@ namespace Server
             var tcpClient = connected.Client;
             var tcpStream = tcpClient.GetStream();
 
-            if (!Process(tcpStream, tcpClient))
+            var status = Process(tcpStream, tcpClient);
+
+            if (status == ProcessingStatus.ClientDisconected)
                 return;
 
             System.Send(new ChunkReaded(Addresses.ConnectionWorkers, tcpStream, connected.Client));
@@ -27,23 +29,32 @@ namespace Server
 
         public void On(ChunkReaded chunk)
         {
-            if (!Process(chunk.Stream, chunk.Client))
+            var status = Process(chunk.Stream, chunk.Client);
+
+            if (status == ProcessingStatus.ClientDisconected)
                 return;
 
-            System.Send(new ChunkReaded(Addresses.ConnectionWorkers, chunk.Stream, chunk.Client));
+            if (status == ProcessingStatus.MessageReaded)
+                System.Send(new ChunkReaded(Addresses.ConnectionWorkers, chunk.Stream, chunk.Client));
+
+            if (status == ProcessingStatus.ClientIsNotSending)
+                System.Scheduler.Schedule(
+                    new ChunkReaded(Addresses.ConnectionWorkers, chunk.Stream, chunk.Client),
+                    TimeSpan.FromMilliseconds(100));
         }
 
-        private bool Process(NetworkStream clientStream, TcpClient tcpClient)
+        private ProcessingStatus Process(NetworkStream clientStream, TcpClient tcpClient)
         {
             if (IsDisconected(tcpClient))
-                return false;
-            
+                return ProcessingStatus.ClientDisconected;
+
             string message;
-            if (!TryReadMessage(clientStream, out message))
+            var messageReadStatus = TryReadMessage(clientStream, out message);
+            if (messageReadStatus == ProcessingStatus.ClientDisconected)
             {
                 clientStream.Close();
                 tcpClient.Close();
-                return false;
+                return messageReadStatus;
             }
 
             if (!string.IsNullOrEmpty(message))
@@ -52,10 +63,17 @@ namespace Server
                 Console.WriteLine("Worker {0}: {1}", Id, message);
             }
 
-            return true;
+            return messageReadStatus;
         }
 
-        private static bool TryReadMessage(NetworkStream clientStream, out string message)
+        private enum ProcessingStatus
+        {
+            MessageReaded,
+            ClientDisconected,
+            ClientIsNotSending,
+        }
+
+        private static ProcessingStatus TryReadMessage(NetworkStream clientStream, out string message)
         {
             message = null;
 
@@ -66,30 +84,38 @@ namespace Server
                 
                 if (clientStream.DataAvailable)
                     bytesRead = clientStream.Read(buffer, 0, 11);
-                else return true;  
+                else 
+                    return ProcessingStatus.ClientIsNotSending;  
                 
                 if (bytesRead == 0)
-                    return false;
+                    return ProcessingStatus.ClientIsNotSending;
 
                 var encoder = new ASCIIEncoding();
                 message = encoder.GetString(buffer, 0, bytesRead);
-                return true;
+                return ProcessingStatus.MessageReaded;
             }
             catch
             {
-                return false;
+                return ProcessingStatus.ClientDisconected;
             }            
         }
 
         private static bool IsDisconected(TcpClient tcp)
-        {            
-            if (tcp.Client.Poll(0, SelectMode.SelectRead))
+        {
+            try
             {
-                var buff = new byte[1];
-                if (tcp.Client.Receive(buff, SocketFlags.Peek) == 0)
+                if (tcp.Client.Poll(0, SelectMode.SelectRead))
                 {
-                    return true;
+                    var buff = new byte[1];
+                    if (tcp.Client.Receive(buff, SocketFlags.Peek) == 0)
+                    {
+                        return true;
+                    }
                 }
+            }
+            catch
+            {
+                return true;
             }
 
             return false;

@@ -28,7 +28,7 @@ namespace Stress
             if (TotalMessagesProcessed%100 == 0 || TotalMessagesProcessed%100 == TotalMessagesProcessed)
                 Console.WriteLine("Total messages processed: {0}", TotalMessagesProcessed);
 
-            if (TotalMessagesProcessed == Generator.TotalMessages)
+            if (TotalMessagesProcessed == Generator.MessagesToBeSent)
                 AllJobDone.Set();
         }
 

@@ -1,32 +1,54 @@
-﻿using System.Threading.Tasks;
+﻿using System;
 using ActorModel.Infrastructure.Actors;
 
 namespace Stress
 {
     public class Generator : Actor
     {
-        public const int TotalMessages = 5000;
+        public const int MessagesToBeSent = 5000;
 
+        private int _messagesAlreadySent;
+        
         public Generator(ActorId id, ActorsSystem system) : base(id, system)
         {
         }
 
-        public void Start()
+        public void On(GenerateNextMessage _)
         {
-            Task.Factory.StartNew(() =>
-            {
-                for (int i = 0; i < TotalMessages; i++)
-                {
-                    System.Send(new SendContent("testMessage", Addresses.TcpWritersDispatcher));
-                    Wait();
-                }
-            });
+            if (_messagesAlreadySent >= MessagesToBeSent)
+                return;
+
+            System.Send(new SendContent("testMessage", Addresses.TcpWritersDispatcher));
+            _messagesAlreadySent++;
+
+            System.Scheduler.Schedule(new GenerateNextMessage(Id), TimeSpan.FromMilliseconds(25));
         }
 
-        private static void Wait()
+        //public void Start()
+        //{
+        //    Task.Factory.StartNew(() =>
+        //    {
+        //        for (int i = 0; i < MessagesToBeSent; i++)
+        //        {
+        //            System.Send(new SendContent("testMessage", Addresses.TcpWritersDispatcher));
+        //            Wait();
+        //        }
+        //    });
+        //}        
+    }
+
+    public class GenerateNextMessage : Message
+    {
+        private readonly ActorId _desinationId;
+
+        public GenerateNextMessage(ActorId desinationId)
         {
-            //Thread.Sleep(10);
-            //Thread.SpinWait(50000);
+            _desinationId = desinationId;
+        }
+
+        public override ActorId DestinationActorId
+        {
+            get { return _desinationId; }
         }
     }
 }

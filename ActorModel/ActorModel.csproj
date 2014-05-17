@@ -54,6 +54,7 @@
     <Compile Include="Infrastructure\Actors\ActorsSystem.cs" />
     <Compile Include="Infrastructure\Actors\QueuedActor.cs" />
     <Compile Include="Infrastructure\Actors\RoundRobinActor.cs" />
+    <Compile Include="Infrastructure\Actors\Scheduler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\Basic_Actor_Scenarios.cs" />
     <Compile Include="Tests\LongRunningAttribute.cs" />
