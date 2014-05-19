@@ -9,8 +9,8 @@ namespace Server
 {
     public class ClientConnectionWorker : Actor
     {
-        public ClientConnectionWorker(ActorsSystem system)
-            : base(ActorId.GenerateNew(), system)
+        public ClientConnectionWorker(ActorsSystem system, IMailBox mailBox)
+            : base(ActorId.GenerateNew(), system, mailBox)
         {
         }
 
@@ -59,7 +59,7 @@ namespace Server
 
             if (!string.IsNullOrEmpty(message))
             {
-                Thread.Sleep(10); //simulate some work
+                Thread.Sleep(250); //simulate some work
                 Console.WriteLine("Worker {0}: {1}", Id, message);
             }
 

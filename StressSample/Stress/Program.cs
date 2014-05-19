@@ -15,16 +15,21 @@ namespace Stress
                 var generator = new Generator(ActorId.GenerateNew(), system);
                 system.SubscribeByAddress(generator);
 
-                var connectionWorkers = QueuedActor.Of(new RoundRobinActor(
+                var connectionWorkers = QueuedActor.Of(mailbox1 => new RoundRobinActor(
                     id: Addresses.TcpWritersDispatcher,
-                    workerFactory: () => QueuedActor.Of(new TcpWriter(ActorId.GenerateNew(), system)),
-                    degreeOfParallelism: 5));
+                    workerFactory:
+                        () => QueuedActor.Of(mailbox2 => new TcpWriter(ActorId.GenerateNew(), system, mailbox2), system.Monitor),
+                    degreeOfParallelism: 5,
+                    system: system,
+                    mailBox: mailbox1));
 
                 system.SubscribeByAddress(connectionWorkers);
+                system.Monitor.MonitorActor(connectionWorkers);
 
                 var diskWriter = new DiskWriter(Addresses.DiskWriter);
                 var queuedDiskWriter = QueuedActor.Of(diskWriter);
                 system.SubscribeByAddress(queuedDiskWriter);
+                system.Monitor.MonitorActor(queuedDiskWriter);
 
 
                 var stopwatch = new Stopwatch();

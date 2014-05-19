@@ -17,9 +17,12 @@ namespace ActorModel.Infrastructure.Actors
         {
             _actors = new List<Actor>();
             Scheduler = new Scheduler(this);
+            Monitor = new MailboxMonitor();
         }
 
         public Scheduler Scheduler { get; private set; }
+
+        public MailboxMonitor Monitor { get; private set; }
 
         public Actor CreateNewActor(Func<ActorsSystem, Actor> factory)
         {
@@ -59,5 +62,20 @@ namespace ActorModel.Infrastructure.Actors
             foreach (var actor in _actors)
                 actor.Dispose();
         }
+    }
+
+    public class MailboxMonitor
+    {
+        private readonly Dictionary<ActorId, IMailBox> _map = new Dictionary<ActorId, IMailBox>();
+
+        public void MonitorActor(Actor actor)
+        {
+            _map[actor.Id] = new DelegatingMailBox(() => actor.MailBox);
+        }
+
+        public IEnumerable<IMailBox> GetAllStats()
+        {
+            return _map.Values;
+        } 
     }
 }

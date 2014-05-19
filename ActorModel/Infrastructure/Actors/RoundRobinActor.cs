@@ -7,8 +7,8 @@ namespace ActorModel.Infrastructure.Actors
         private readonly Actor[] _workers;
         private int _next;
 
-        public RoundRobinActor(ActorId id, Func<Actor> workerFactory, int degreeOfParallelism)
-            : base(id)
+        public RoundRobinActor(ActorId id, Func<Actor> workerFactory, int degreeOfParallelism, ActorsSystem system, IMailBox mailBox)
+            : base(id,system, mailBox)
         {            
             _workers = new Actor[degreeOfParallelism];
 

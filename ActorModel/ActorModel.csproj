@@ -50,6 +50,7 @@
     <Compile Include="Infrastructure\Actors\Actor.cs" />
     <Compile Include="Infrastructure\Actors\ActorId.cs" />
     <Compile Include="Infrastructure\Actors\IHandle.cs" />
+    <Compile Include="Infrastructure\Actors\IMailBox.cs" />
     <Compile Include="Infrastructure\Actors\Message.cs" />
     <Compile Include="Infrastructure\Actors\ActorsSystem.cs" />
     <Compile Include="Infrastructure\Actors\QueuedActor.cs" />

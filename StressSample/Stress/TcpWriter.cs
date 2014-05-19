@@ -11,7 +11,7 @@ namespace Stress
         private readonly TcpClient _client;
         private readonly NetworkStream _clientStream;
 
-        public TcpWriter(ActorId id, ActorsSystem system) : base(id, system)
+        public TcpWriter(ActorId id, ActorsSystem system, IMailBox mailBox) : base(id, system, mailBox)
         {
             var serverEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3000);
             _client = new TcpClient();

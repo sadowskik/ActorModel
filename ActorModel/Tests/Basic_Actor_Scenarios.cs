@@ -62,7 +62,7 @@ namespace ActorModel.Tests
             var actor2 = new MyTestActor(ActorId.GenerateNew());
 
             var factory = From(actor1, actor2);
-            var roundRobinActor = new RoundRobinActor(ActorId.GenerateNew(), factory, 2);
+            var roundRobinActor = new RoundRobinActor(ActorId.GenerateNew(), factory, 2, null, new DummyMailBox());
 
             //act
             roundRobinActor.Handle(new MyTestMessage1());
@@ -83,7 +83,7 @@ namespace ActorModel.Tests
             var actor2 = new MyTestActor(ActorId.GenerateNew());
 
             var factory = From(QueuedActor.Of(actor1), QueuedActor.Of(actor2));
-            var roundRobinActor = QueuedActor.Of(new RoundRobinActor(ActorId.GenerateNew(), factory, 2));
+            var roundRobinActor = QueuedActor.Of(new RoundRobinActor(ActorId.GenerateNew(), factory, 2, null, new DummyMailBox()));
 
             //act
             roundRobinActor.Handle(new MyTestMessage1());
