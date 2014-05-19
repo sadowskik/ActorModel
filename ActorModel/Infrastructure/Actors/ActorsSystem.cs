@@ -57,7 +57,8 @@ namespace ActorModel.Infrastructure.Actors
 
         public void Dispose()
         {
-            Scheduler.Stop();
+            if (Scheduler != null)
+                Scheduler.Stop();
 
             foreach (var actor in _actors)
                 actor.Dispose();
