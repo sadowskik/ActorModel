@@ -1,33 +1,29 @@
 ﻿using System;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Client2
 {
     class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Console.ReadLine();
 
-            var client = new TcpClient();
-            var serverEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3000);
+            var client = new TcpServiceClient(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3000));
 
-            client.Connect(serverEndPoint);
-            
-            string message = "test";
-            while (!string.IsNullOrEmpty(message) && message != "exit")
+            const int parallelism = 10;
+            var awaitingTasks = new Task[parallelism];
+
+            Parallel.For(0, parallelism, i =>
             {
-                message = Console.ReadLine();
-                var clientStream = client.GetStream();
-                var encoder = new ASCIIEncoding();
-                byte[] buffer = encoder.GetBytes(message);
-                clientStream.Write(buffer, 0, buffer.Length);
-                clientStream.Flush();                
-            }
+                awaitingTasks[i] = client.Send();
+            });
 
-            client.Close();      
+            Thread.Sleep(500);
+            Task.WaitAll(awaitingTasks);
+            Console.WriteLine("Messages send");
         }
     }
 }
