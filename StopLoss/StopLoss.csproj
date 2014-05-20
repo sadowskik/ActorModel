@@ -59,8 +59,11 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RefreshPrices.cs" />
+    <Compile Include="RemoveFrom15.cs" />
+    <Compile Include="RemoveFrom30.cs" />
+    <Compile Include="Sell.cs" />
     <Compile Include="Tests\trader_scenarios.cs" />
-    <Compile Include="Trader.cs" />
+    <Compile Include="StopLossTrader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -9,7 +9,7 @@ namespace StopLoss
         {
             using (var system = new ActorsSystem())
             {
-                var trader = QueuedActor.Of(new Trader(Addresses.TraderAddress, system));
+                var trader = QueuedActor.Of(new StopLossTrader(Addresses.TraderAddress, system));
                 system.SubscribeByAddress(trader);
 
                 var orderProcessor = QueuedActor.Of(new OrderProcessor(Addresses.OrderProcessorAddress, system));
