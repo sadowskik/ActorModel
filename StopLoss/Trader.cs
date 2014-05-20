@@ -11,7 +11,7 @@ namespace StopLoss
         private readonly IDictionary<Guid, PriceChanged> _15SecWindow = new Dictionary<Guid, PriceChanged>();
 
         private bool _alive = true;
-        private decimal _price = 0;
+        private decimal _price;
 
         public Trader(ActorId id, ActorsSystem system) : base(id, system)
         {
@@ -19,7 +19,7 @@ namespace StopLoss
 
         public void On(PriceChanged priceChanged)
         {
-            var priceId = Guid.NewGuid();
+            var priceId = priceChanged.PriceId;
 
             _30SecWindow.Add(priceId, priceChanged);
             _15SecWindow.Add(priceId, priceChanged);

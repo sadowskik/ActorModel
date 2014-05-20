@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace ActorModel.Infrastructure.Actors
@@ -7,22 +8,29 @@ namespace ActorModel.Infrastructure.Actors
     public class ActorsSystem : IDisposable
     {
         private readonly IList<Actor> _actors;
+        private readonly List<Message> _deadSink = new List<Message>();
 
-        private ActorsSystem(params Actor[] actors)
+        private ActorsSystem(IScheduler scheduler = null, params Actor[] actors)
         {
             _actors = actors;
+            Scheduler = scheduler;            
         }
 
-        public ActorsSystem()
+        public ActorsSystem(IScheduler scheduler = null)
         {
             _actors = new List<Actor>();
-            Scheduler = new Scheduler(this);
-            Monitor = new MailboxMonitor();
+            Monitor = new MailboxMonitor();            
+            Scheduler = scheduler ?? new Scheduler(this);
         }
 
-        public Scheduler Scheduler { get; private set; }
+        public IScheduler Scheduler { get; private set; }
 
         public MailboxMonitor Monitor { get; private set; }
+
+        public IReadOnlyCollection<Message> DeadSink
+        {
+            get { return new ReadOnlyCollection<Message>(_deadSink); }
+        }
 
         public Actor CreateNewActor(Func<ActorsSystem, Actor> factory)
         {
@@ -36,15 +44,15 @@ namespace ActorModel.Infrastructure.Actors
             _actors.Add(actor);
         }
 
-        public static ActorsSystem WithoutQueues(params Actor[] actors)
+        public static ActorsSystem WithoutQueues(IScheduler scheduler = null, params Actor[] actors)
         {
-            return new ActorsSystem(actors);
+            return new ActorsSystem(scheduler,actors);
         }
 
-        public static ActorsSystem WithQueues(params Actor[] actors)
+        public static ActorsSystem WithQueues(IScheduler scheduler = null, params Actor[] actors)
         {
             var queuedActors = actors.Select(QueuedActor.Of);
-            return new ActorsSystem(queuedActors.ToArray());
+            return new ActorsSystem(scheduler, queuedActors.ToArray());
         }
 
         public void Send(Message message)
@@ -53,12 +61,14 @@ namespace ActorModel.Infrastructure.Actors
 
             if (actor != null)
                 actor.Handle(message);
+            else
+                _deadSink.Add(message);
         }
 
         public void Dispose()
         {
             if (Scheduler != null)
-                Scheduler.Stop();
+                Scheduler.Dispose();
 
             foreach (var actor in _actors)
                 actor.Dispose();

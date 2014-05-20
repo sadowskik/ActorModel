@@ -28,7 +28,7 @@ namespace ActorModel.Tests
             var testActorId = ActorId.GenerateNew();
             var testActor = new MyTestActor(testActorId);
 
-            using (var system = ActorsSystem.WithoutQueues(testActor))
+            using (var system = ActorsSystem.WithoutQueues(null, testActor))
             {
                 var messageToSend = new MyTestMessage1(destinationId: testActorId);
                 system.Send(messageToSend);
@@ -44,7 +44,7 @@ namespace ActorModel.Tests
             var testActorId = ActorId.GenerateNew();
             var testActor = new MyTestActor(testActorId);
 
-            using (var system = ActorsSystem.WithQueues(testActor))
+            using (var system = ActorsSystem.WithQueues(null, testActor))
             {
                 var messageToSend = new MyTestMessage1(destinationId: testActorId);
                 system.Send(messageToSend);

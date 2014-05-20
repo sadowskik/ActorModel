@@ -5,7 +5,7 @@ using System.Threading;
 
 namespace ActorModel.Infrastructure.Actors
 {
-    public interface IScheduler
+    public interface IScheduler : IDisposable
     {
         void Schedule<TMessage>(TMessage message, TimeSpan after) where TMessage : Message;
     }
@@ -43,13 +43,7 @@ namespace ActorModel.Infrastructure.Actors
         {
             _scheduledJobs.TryAdd(Guid.NewGuid(), new ScheduledJob(message, after));
         }
-
-        public void Stop()
-        {
-            _timer.Dispose();
-            DispatchScheduledMessages();
-        }
-
+        
         private class ScheduledJob
         {
             public Message OriginalMessage { get; private set; }
@@ -60,6 +54,12 @@ namespace ActorModel.Infrastructure.Actors
                 OriginalMessage = originalMessage;
                 RunAt = DateTime.Now + afterSpan;
             }
+        }
+
+        public void Dispose()
+        {
+            _timer.Dispose();
+            DispatchScheduledMessages();
         }
     }
 }

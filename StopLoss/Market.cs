@@ -19,7 +19,8 @@ namespace StopLoss
         {
             System.Send(new PriceChanged(
                 destinationId: Addresses.TraderAddress,
-                newPrice: (decimal) (_pricesRandomizer.NextDouble()*100)));
+                newPrice: (decimal) (_pricesRandomizer.NextDouble()*100),
+                priceId: Guid.NewGuid()));
 
             GenerateNewPrices();
         }
