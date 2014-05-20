@@ -7,10 +7,10 @@ namespace StopLoss
 {
     public class Trader : Actor
     {
-        private readonly IDictionary<Guid,PriceChanged> _30SecWindow = new Dictionary<Guid, PriceChanged>();
+        private readonly IDictionary<Guid, PriceChanged> _30SecWindow = new Dictionary<Guid, PriceChanged>();
         private readonly IDictionary<Guid, PriceChanged> _15SecWindow = new Dictionary<Guid, PriceChanged>();
 
-        bool _alive = true;
+        private bool _alive = true;
         private decimal _price = 0;
 
         public Trader(ActorId id, ActorsSystem system) : base(id, system)
@@ -31,35 +31,23 @@ namespace StopLoss
         public void On(RemoveFrom15 remove)
         {
             _15SecWindow.Remove(remove.PriceId);
-            CheckMove();
+
+            if (_15SecWindow.Values.All(x => x.NewPrice > _price*0.95m))
+                _price = _15SecWindow.Values.Min(x => x.NewPrice);
         }
 
         public void On(RemoveFrom30 remove)
         {
-            CheckSell();
-            _30SecWindow.Remove(remove.PriceId);
-        }
-
-        private void CheckSell()
-        {
             if (!_alive)
                 return;
 
-            if (_30SecWindow.Values.Count(x => x.NewPrice > _price*0.95m) == 0)
+            if (_30SecWindow.Values.All(x => x.NewPrice < _price*0.95m))
             {
                 _alive = false;
-                //System.Send(new Sell(this.Id));
+                //System.Send(new Sell(this.Id));                
             }
 
-            
-        }
-
-        private void CheckMove()
-        {
-            if (_15SecWindow.Values.All(x => x.NewPrice > _price*0.95m))
-            {
-                _price = _15SecWindow.Values.Min(x => x.NewPrice);
-            }
+            _30SecWindow.Remove(remove.PriceId);
         }
     }
 
