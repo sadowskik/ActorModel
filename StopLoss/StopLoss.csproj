@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Addresses.cs" />
     <Compile Include="Market.cs" />
+    <Compile Include="OrderProcessor.cs" />
     <Compile Include="PriceChanged.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

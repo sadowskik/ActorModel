@@ -44,7 +44,7 @@ namespace StopLoss
             if (_30SecWindow.Values.All(x => x.NewPrice < _price*0.95m))
             {
                 _alive = false;
-                //System.Send(new Sell(this.Id));                
+                System.Send(new Sell(Addresses.OrderProcessorAddress, Id.Value, _price));
             }
 
             _30SecWindow.Remove(remove.PriceId);
@@ -98,12 +98,14 @@ namespace StopLoss
     public class Sell : Message
     {
         private readonly ActorId _destinationId;
-        private readonly Guid _priceId;
+        private readonly Guid _positionId;
+        private readonly decimal _sellingPrice;
 
-        public Sell(ActorId destinationId, Guid priceId)
+        public Sell(ActorId destinationId, Guid positionId, decimal sellingPrice)
         {
             _destinationId = destinationId;
-            _priceId = priceId;
+            _positionId = positionId;
+            _sellingPrice = sellingPrice;
         }
 
         public override ActorId DestinationActorId
@@ -111,9 +113,14 @@ namespace StopLoss
             get { return _destinationId; }
         }
 
-        public Guid PriceId
+        public Guid PositionId
         {
-            get { return _priceId; }
+            get { return _positionId; }
+        }
+
+        public decimal SellingPrice
+        {
+            get { return _sellingPrice; }
         }
     }
 }
