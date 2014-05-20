@@ -100,22 +100,21 @@ namespace ActorModel.Infrastructure.Actors
             {
                 var stopwatch = new Stopwatch();
                 stopwatch.Start();
+                int batchSize = 0;
 
                 _continueProcessing.Wait();
                 _continueProcessing.Reset();
                 
-                int batchSize = 0;
-
                 Message message;
                 while (_mailBox.TryDequeue(out message))
                 {
                     _actor.Handle(message);
                     _messageProcessed++;
                     batchSize++;
+                    _avgProcessingSpeed = ((float)batchSize * TimeSpan.TicksPerSecond) / stopwatch.ElapsedTicks;
                 }
 
-                stopwatch.Stop();
-                _avgProcessingSpeed = ((float) batchSize)/stopwatch.ElapsedTicks*TimeSpan.TicksPerSecond;
+                stopwatch.Stop();                
             }
         }
 
